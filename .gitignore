@@ -1,2 +1,7 @@
 
 hand/pose_iter_102000.caffemodel
+__pycache__/directKeys.cpython-37.pyc
+hand/pose_deploy.prototxt
+peopleTest.jpg
+Test0.png
+IGTest0.png

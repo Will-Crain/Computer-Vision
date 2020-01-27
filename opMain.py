@@ -3,14 +3,22 @@ print(sys.executable)
 
 import numpy as np
 from PIL import ImageGrab as imageGrab
-import matplotlib
-from matplotlib import pyplot as plt
 import cv2
 import time
 import keyboard
 from directKeys import moveMouseTo, click, queryMousePosition, mouseDown, mouseUp
+import argparse
+import sys
+from sys import platform
+
+import pyopenpose as op
+
+
+
+parser = argparse.ArgumentParser()
 
 cap = cv2.VideoCapture(0)
+
 
 lastTime = time.time()
 
@@ -23,6 +31,16 @@ POSE_PAIRS = [ [0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[0,9],[9,10],[10,
 
 threshold = 0.2
 net = cv2.dnn.readNetFromCaffe(protoFile, weightsFile)
+
+def setup():
+    params = dict()
+    params['model_pose'] = 'BODY_25'
+    params['num_gpu_start'] = 0
+
+    return params
+
+params = set_params()
+openpose = openPose(params)
 
 def getHandSkeleton(inFrame):    
     outFrame = np.copy(inFrame)

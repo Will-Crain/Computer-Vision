@@ -89,6 +89,10 @@ def getContours(outFrame):
     lBox = (xB, yB, outFrame.shape[1], outFrame.shape[0])
     return [outFrame, lBox]
 
+itr = 0
+vid = []
+
+bl = False
 
 while True:
     ret, frame = cap.read()
@@ -105,9 +109,16 @@ while True:
 #    print('fps:\t{}'.format(1/(nowTime - lastTime)))
 
     outData = hand
-    #outData = np.hstack([contours, iData0])
-    #outData = cv2.addWeighted(frame, 1.0, blank, 1.0, 0.0)
-    #outData = blank
+
+
+    if bl == True:
+        name = 'Frame' + str(itr) + '.png'
+        if itr < 20:
+            cv2.imwrite(name, outData)
+            itr = itr + 1
+        else:
+            break
+    
     cv2.imshow('Frame0', outData)
     
     rX = screen0.shape[0]/frame.shape[0]
@@ -117,14 +128,16 @@ while True:
         toPos = [int(dot[0] * rY), int(dot[1] * rX)]
         print(toPos)
 
-        moveMouseTo(toPos[0], toPos[1])
+        #moveMouseTo(toPos[0], toPos[1])
 
-    
+
     k = cv2.waitKey(1)
     if k == 27 or k == ord('q'):
         break
     if k == ord('a'):
         print(nowTime - lastTime)
+    if k == ord('s'):
+        bl = True
 
     lastTime = nowTime
 

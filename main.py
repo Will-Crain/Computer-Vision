@@ -10,7 +10,7 @@ import time
 import keyboard
 from directKeys import moveMouseTo, click, queryMousePosition, mouseDown, mouseUp
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 
 lastTime = time.time()
 

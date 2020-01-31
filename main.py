@@ -3,14 +3,13 @@ print(sys.executable)
 
 import numpy as np
 from PIL import ImageGrab as imageGrab
-import matplotlib
-from matplotlib import pyplot as plt
 import cv2
 import time
 import keyboard
 from directKeys import moveMouseTo, click, queryMousePosition, mouseDown, mouseUp
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
+screen0 = imageGrab.grab()
 
 lastTime = time.time()
 
@@ -26,7 +25,6 @@ net = cv2.dnn.readNetFromCaffe(protoFile, weightsFile)
 
 def getHandSkeleton(inFrame):    
     outFrame = np.copy(inFrame)
-    outFrame = cv2.cvtColor(outFrame, cv2.COLOR_RGB2RGBA)
     
     width = int(outFrame.shape[1])
     height = int(outFrame.shape[0])
@@ -37,9 +35,9 @@ def getHandSkeleton(inFrame):
     inpBlob = cv2.dnn.blobFromImage(inFrame, 1.0/256, (inWidth, inHeight), (0, 0, 0), swapRB=False, crop=False, ddepth=cv2.CV_32F)
     net.setInput(inpBlob)
     output = net.forward()
-
+    
     points = []
-    for i in range(nPoints):
+    for i in range(0, nPoints):
         probMap = output[0, i, :, :]
         probMap = cv2.resize(probMap, (width, height))
 
@@ -56,13 +54,13 @@ def getHandSkeleton(inFrame):
         partB = pair[1]
 
         if points[partA] and points[partB]:
-            cv2.line(outFrame, points[partA], points[partB], (127, 127, 127, 255), 2)
-            cv2.circle(outFrame, points[partA], 3, (255, 0, 0, 255), thickness=1)
-            cv2.circle(outFrame, points[partB], 3, (255, 0, 0, 255), thickness=1)
+            cv2.line(outFrame, points[partA], points[partB], (127, 127, 127), 2)
+            cv2.circle(outFrame, points[partA], 3, (255, 0, 0), thickness=1)
+            cv2.circle(outFrame, points[partB], 3, (255, 0, 0), thickness=1)
 
     dot = points[8]
         
-    cv2.circle(outFrame, points[8], 5, (0, 0, 255, 255), thickness=-1)
+    cv2.circle(outFrame, points[8], 5, (0, 0, 255), thickness=-1)
 
     return [outFrame, dot]
     
@@ -85,9 +83,20 @@ def getContours(outFrame):
             wB = w
             hB = h
 
-    outFrame = outFrame[yB:yB+hB, xB:xB+wB]
+    outFrame = outFrame
     lBox = (xB, yB, outFrame.shape[1], outFrame.shape[0])
     return [outFrame, lBox]
+
+
+def combineImages(base, mask, offset):
+    outFrame = np.copy(base)
+    mSize = (mask.shape[0], mask.shape[1])
+    for i in range(0, mSize[0]):
+        for j in range(0, mSize[1]):
+            if not np.array_equal(mask[i][j], [0, 0, 0]):
+                outFrame[i+offset[0]][j+offset[1]] = mask[i][j]
+
+    return outFrame
 
 itr = 0
 vid = []
@@ -96,37 +105,33 @@ bl = False
 
 while True:
     ret, frame = cap.read()
-    
-    screen0 = np.array(imageGrab.grab())
 
     contours, box = getContours(frame)
     x, y, w, h = box
 
-    hand, dot = getHandSkeleton(frame)
+    x0 = int(x*0.9)
+    y0 = int(y*0.9)
+    x1 = int((x+w)*1.1)
+    y1 = int((y+h)*1.1)
+
+    hand, dot = getHandSkeleton(frame[x0:x1, y0:y1])
     
     nowTime = time.time()
     
-#    print('fps:\t{}'.format(1/(nowTime - lastTime)))
+    print('fps:\t{}'.format(1/(nowTime - lastTime)))
 
-    outData = hand
+    outData = combineImages(frame, hand, (x0, y0))
 
-
-    if bl == True:
-        name = 'Frame' + str(itr) + '.png'
-        if itr < 20:
-            cv2.imwrite(name, outData)
-            itr = itr + 1
-        else:
-            break
     
     cv2.imshow('Frame0', outData)
+#    cv2.imshow('Frame0', frame[x0:x1, y0:y1])
     
-    rX = screen0.shape[0]/frame.shape[0]
-    rY = screen0.shape[1]/frame.shape[1]
+    rX = frame.shape[0]/frame.shape[0]
+    rY = frame.shape[1]/frame.shape[1]
 
-    if dot is not None:
-        toPos = [int(dot[0] * rY), int(dot[1] * rX)]
-        print(toPos)
+#    if dot is not None:
+#        toPos = [int(dot[0] * rY), int(dot[1] * rX)]
+#        print(toPos)
 
         #moveMouseTo(toPos[0], toPos[1])
 

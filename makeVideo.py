@@ -13,7 +13,7 @@ height = 480
 images = []
 
 for i in range(0, 28):
-    images.append(cv2.imread('Frame' + str(i) + '.png'))
+    images.append(cv2.imread('frame' + str(i) + '.png'))
 
 def genVideo():
     imageFolder = '.'

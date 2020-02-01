@@ -32,7 +32,7 @@ def getHandSkeleton(inFrame):
     inWidth = int(width*scale)
     inHeight = int(height*scale)
     
-    inpBlob = cv2.dnn.blobFromImage(inFrame, 1.0/256, (inWidth, inHeight), (0, 0, 0), swapRB=False, crop=False, ddepth=cv2.CV_32F)
+    inpBlob = cv2.dnn.blobFromImage(inFrame, 1.0/512, (inWidth, inHeight), (0, 0, 0), swapRB=False, crop=False, ddepth=cv2.CV_32F)
     net.setInput(inpBlob)
     output = net.forward()
     
@@ -124,7 +124,7 @@ while True:
 
     
     cv2.imshow('Frame0', outData)
-#    cv2.imshow('Frame0', frame[x0:x1, y0:y1])
+#    cv2.imshow('Frame1', frame[x0:x1, y0:y1])
     
     rX = frame.shape[0]/frame.shape[0]
     rY = frame.shape[1]/frame.shape[1]

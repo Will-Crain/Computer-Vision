@@ -5,6 +5,8 @@
 
 #       #    Impoort    #       #
 
+import sys
+import os
 import numpy as np
 from PIL import ImageGrab as imageGrab
 import cv2
@@ -13,10 +15,11 @@ import keyboard
 from directKeys import moveMouseTo, click, queryMousePosition, mouseDown, mouseUp
 
 
-
 #       #     Setup     #       #
 
 cap = cv2.VideoCapture(0)
+
+os.chdir(r'C:\Users\willc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.8_qbz5n2kfra8p0\LocalCache\local-packages\Python38\site-packages\cv2\data')
 
 faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml') 
 eyeCascade = cv2.CascadeClassifier('haarcascade_eye.xml')
@@ -31,7 +34,7 @@ def getEyes(inFrame):
 
 def drawEyes(inFrame, eyes):
     for (x, y, w, h) in eyes:
-        cv2.rectangle(inFrame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+        cv2.rectangle(inFrame, (x, y), (x+w, y+h), (0, 0, 0), 1)
 
     return inFrame
 
@@ -41,6 +44,7 @@ def drawEyes(inFrame, eyes):
 while True:
     ret, frameC = cap.read()
     frameG = cv2.cvtColor(frameC, cv2.COLOR_RGB2GRAY)
+    frameG = np.uint8(frameG)
     
     eyes = getEyes(frameG)
     outFrame = drawEyes(frameC, eyes)

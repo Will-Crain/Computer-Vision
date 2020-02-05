@@ -4,3 +4,5 @@ __pycache__/directKeys.cpython-38.pyc
 *.prototxt
 *.png
 *.avi
+__pycache__/directKeys.cpython-37.pyc
+peopleTest.jpg

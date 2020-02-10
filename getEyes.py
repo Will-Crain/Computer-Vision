@@ -19,7 +19,13 @@ from directKeys import moveMouseTo, click, queryMousePosition, mouseDown, mouseU
 
 cap = cv2.VideoCapture(0)
 
-os.chdir(r'C:\Users\willc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.7_qbz5n2kfra8p0\LocalCache\local-packages\Python37\site-packages\cv2\data')
+device = 'Laptop'
+
+if device=='Laptop':
+    os.chdir(r'C:\Users\willc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.8_qbz5n2kfra8p0\LocalCache\local-packages\Python38\site-packages\cv2\data')
+    
+elif device=='Desktop':
+    os.chdir(r'C:\Users\willc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.7_qbz5n2kfra8p0\LocalCache\local-packages\Python37\site-packages\cv2\data')
 
 faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml') 
 eyeCascade = cv2.CascadeClassifier('haarcascade_eye.xml')
@@ -34,7 +40,7 @@ MODE = SHOW_PUPILS
 #       #   Functions   #       #
 
 def getEyes(inFrame):
-    eyes = eyeCascade.detectMultiScale(inFrame, 1.08, 50)#, 1, (2, 2), (5, 5))
+    eyes = eyeCascade.detectMultiScale(inFrame, 1.1, 30)#, 1, (2, 2), (5, 5))
     
     return eyes
 

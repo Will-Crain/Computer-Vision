@@ -26,6 +26,10 @@ eyeCascade = cv2.CascadeClassifier('haarcascade_eye.xml')
 
 kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
 
+SHOW_PUPILS = 0
+SHOW_THRESH = 1
+
+MODE = SHOW_THRESH
 
 #       #   Functions   #       #
 
@@ -57,52 +61,76 @@ def drawPupils(inFrame, pupils):
     
 #       #    Execute    #       #
 
-while True:
-#    ret, frameC = cap.read()
-    frameC = cv2.imread(r'C:\Users\willc\OneDrive\Documents\GitHub\Computer-Vision\testGetEyes.png')
-    frameG = cv2.cvtColor(frameC, cv2.COLOR_RGB2GRAY)
-    frameG = np.uint8(frameG)
+def showThresh():
+    while True:
+        ret0, frameC = cap.read()
+        frameG = np.uint8(cv2.cvtColor(frameC, cv2.COLOR_RGB2GRAY))
 
-    outFrame = np.copy(frameC)
-    
-    eyes = getEyes(frameG)
-    eyeFrames = getEyeFrames(frameG, eyes)
-    
-    outFrame = drawEyes(frameC, eyes)
+        gBlur = cv2.GaussianBlur(frameG, (5, 5), 0)
+        ret1, frameG = cv2.threshold(gBlur, 0, 0, cv2.THRESH_TOZERO_INV+cv2.THRESH_OTSU)
 
-    side = 0
-    for (x, y, w, h) in eyes:
-        eyeFrame = frameG[y:y+h, x:x+w]
-        eyeFrame = cv2.equalizeHist(eyeFrame)
-        eyeFrame = cv2.morphologyEx(eyeFrame, cv2.MORPH_OPEN, kernel)
+        cv2.imshow('Frame', frameG)
+        
+        k = cv2.waitKey(1)
+        if k == 27 or k == ord('q'):
+            break
+        if k == ord('a'):
+            pass        
+        
 
-        threshold = cv2.inRange(eyeFrame, 5, 10)
-        contours, hierarchy = cv2.findContours(threshold, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+def showPupils():
+    while True:
+        ret, frameC = cap.read()
+    #    frameC = cv2.imread(r'C:\Users\willc\OneDrive\Documents\GitHub\Computer-Vision\testGetEyes.png')
+        frameG = np.uint8(cv2.cvtColor(frameC, cv2.COLOR_RGB2GRAY))
 
-        for c in contours:
-            print([c])
-            #cv2.drawContours(outFrame, [c], 0, (0, 0, 0), 1)
-    
-        lCon = None
-        if len(contours) > 1:
-            maxArea = 0
-            for c in contours:
-                area = cv2.contourArea(c)
-                if area > maxArea:
-                    maxArea = area
-                    lCon = c
+        outFrame = np.copy(frameC)
+        
+        eyes = getEyes(frameG)
+        eyeFrames = getEyeFrames(frameG, eyes)
+        
+        outFrame = drawEyes(frameC, eyes)
 
-        if lCon is not None:
-            center = cv2.moments(c)
+        side = 0
+        for (x, y, w, h) in eyes:
+            eyeFrame = frameG[y:y+h, x:x+w]
+            eyeFrame = cv2.equalizeHist(eyeFrame)
+            eyeFrame = cv2.morphologyEx(eyeFrame, cv2.MORPH_OPEN, kernel)
+
+            threshold = cv2.inRange(eyeFrame, 0, 20)
+            contours, hierarchy = cv2.findContours(threshold, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+
+    #        for c in contours:
+    #            cv2.drawContours(outFrame, [c], 0, (0, 0, 0), 1)
+
+            def sortContours(c):
+                return cv2.contourArea(c)
+
+            contours.sort(reverse=True, key=sortContours)
+            ind = min(1, len(contours)-1)
+
+            if len(contours) == 0:
+                continue
+            
+            larCon = contours[ind]
+            
+            center = cv2.moments(larCon)
             if not center['m00'] == 0.0:
                 cx, cy = int(center['m10']/center['m00']), int(center['m01']/center['m00'])
                 cv2.circle(outFrame, (cx+x, cy+y), 5, (0, 0, 255), 1)
-                
-    side = side + 1
-    cv2.imshow('outFrame', outFrame)
+                    
+        side = side + 1
+        cv2.imshow('outFrame', outFrame)
+        
+        k = cv2.waitKey(1)
+        if k == 27 or k == ord('q'):
+            break
+        if k == ord('a'):
+            pass
+
+
+if MODE == SHOW_THRESH:
+    showThresh()
     
-    k = cv2.waitKey(1)
-    if k == 27 or k == ord('q'):
-        break
-    if k == ord('a'):
-        pass
+elif MODE == SHOW_PUPILS:
+    showPupils()

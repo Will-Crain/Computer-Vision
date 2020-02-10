@@ -67,7 +67,7 @@ def showThresh():
         frameG = np.uint8(cv2.cvtColor(frameC, cv2.COLOR_RGB2GRAY))
 
         gBlur = cv2.GaussianBlur(frameG, (5, 5), 0)
-        ret1, frameG = cv2.threshold(gBlur, 0, 0, cv2.THRESH_TOZERO_INV+cv2.THRESH_OTSU)
+        ret1, frameG = cv2.threshold(gBlur, 220, 255, cv2.THRESH_TOZERO_INV+cv2.THRESH_OTSU)
 
         cv2.imshow('Frame', frameG)
         

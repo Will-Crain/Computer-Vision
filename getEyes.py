@@ -19,12 +19,12 @@ from directKeys import moveMouseTo, click, queryMousePosition, mouseDown, mouseU
 
 cap = cv2.VideoCapture(0)
 
-device = 'Desktop'
+device = 'Laptop'
 
-if device == 'Desktop':
+if device=='Desktop':
     os.chdir(r'C:\Users\willc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.7_qbz5n2kfra8p0\LocalCache\local-packages\Python37\site-packages\cv2\data')
-
-elif device == 'Laptop':
+    
+elif device=='Laptop':
     os.chdir(r'C:\Users\willc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.8_qbz5n2kfra8p0\LocalCache\local-packages\Python38\site-packages\cv2\data')
 
 faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml') 
@@ -40,7 +40,7 @@ MODE = SHOW_PUPILS
 #       #   Functions   #       #
 
 def getEyes(inFrame):
-    eyes = eyeCascade.detectMultiScale(inFrame, 1.075, 100)#, 1, (2, 2), (5, 5))
+    eyes = eyeCascade.detectMultiScale(inFrame, 1.1, 30)#, 1, (2, 2), (5, 5))
     
     return eyes
 
@@ -82,12 +82,17 @@ def showThresh():
         if k == 27 or k == ord('q'):
             break
         if k == ord('a'):
-            pass      
+            pass        
+        
 
 def showPupils():
     while True:
         ret0, frameC = cap.read()
+    #    frameC = cv2.imread(r'C:\Users\willc\OneDrive\Documents\GitHub\Computer-Vision\testGetEyes.png')
         frameG = np.uint8(cv2.cvtColor(frameC, cv2.COLOR_RGB2GRAY))
+
+        blurG = cv2.GaussianBlur(frameG, (3, 3), 0)
+        ret1, frameT = cv2.threshold(blurG, 220, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
 
         outFrame = np.copy(frameC)
         
@@ -98,27 +103,28 @@ def showPupils():
 
         side = 0
         for (x, y, w, h) in eyes:
-            eyeFrame = frameG[y:y+h, x:x+w]
+            eyeFrame = frameT[y:y+h, x:x+w]
             eyeFrame = cv2.equalizeHist(eyeFrame)
             eyeFrame = cv2.morphologyEx(eyeFrame, cv2.MORPH_OPEN, kernel)
 
-            threshold = cv2.inRange(eyeFrame, 0, 5)
-            contours, hierarchy = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            threshold = cv2.inRange(eyeFrame, 0, 20)
+            contours, hierarchy = cv2.findContours(threshold, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
-            #cv2.imshow('tFrame', threshold)
-            
+            for c in contours:
+                cv2.drawContours(outFrame, [c], 0, (0, 0, 0), 1)
+
             def sortContours(c):
                 return cv2.contourArea(c)
 
             contours.sort(reverse=True, key=sortContours)
-            ind = min(0, len(contours)-1)
+            ind = min(1, len(contours)-1)
 
             if len(contours) == 0:
                 continue
             
             larCon = contours[ind]
-            center = cv2.moments(larCon)
             
+            center = cv2.moments(larCon)
             if not center['m00'] == 0.0:
                 cx, cy = int(center['m10']/center['m00']), int(center['m01']/center['m00'])
                 cv2.circle(outFrame, (cx+x, cy+y), 4, (0, 148, 255), -1)

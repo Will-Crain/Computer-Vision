@@ -139,6 +139,8 @@ def showPupils():
             pass
 
 
+os.chdir(r'C:\Users\willc\OneDrive\Documents\GitHub\Computer-Vision')
+
 if MODE == SHOW_THRESH:
     showThresh()
     

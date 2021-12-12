@@ -17,9 +17,9 @@ from directKeys import moveMouseTo, click, queryMousePosition, mouseDown, mouseU
 
 #       #     Setup     #       #
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 
-device = 'Laptop'
+device = 'Desktop'
 
 if device=='Desktop':
     os.chdir(r'C:\Users\willc\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.7_qbz5n2kfra8p0\LocalCache\local-packages\Python37\site-packages\cv2\data')
@@ -138,8 +138,13 @@ def showPupils():
         if k == ord('a'):
             pass
 
+if device=='Desktop':
+    os.chdir(r'C:\Users\willc\Documents\GitHub\Computer-Vision')
+    
+elif device=='Laptop':
+    os.chdir(r'C:\Users\willc\OneDrive\Documents\GitHub\Computer-Vision')
 
-os.chdir(r'C:\Users\willc\OneDrive\Documents\GitHub\Computer-Vision')
+
 
 if MODE == SHOW_THRESH:
     showThresh()
